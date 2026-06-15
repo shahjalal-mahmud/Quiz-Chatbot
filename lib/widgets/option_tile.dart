@@ -19,42 +19,43 @@ class OptionTile extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        margin: const EdgeInsets.symmetric(vertical: 7),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        duration: const Duration(milliseconds: 200),
+        margin: const EdgeInsets.symmetric(vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
         decoration: BoxDecoration(
           color: isSelected
-              ? const Color(0xFF7E57C2).withValues(alpha: 0.28)
-              : const Color(0xFF9575CD).withValues(alpha: 0.13),
-          borderRadius: BorderRadius.circular(30), // pill shape
+              ? Colors.white.withValues(alpha: 0.32)
+              : Colors.white.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(30),
           border: Border.all(
             color: isSelected
-                ? const Color(0xFF7E57C2).withValues(alpha: 0.6)
-                : Colors.transparent,
+                ? Colors.white.withValues(alpha: 0.75)
+                : Colors.white.withValues(alpha: 0.25),
             width: 1.5,
           ),
         ),
         child: Row(
           children: [
-            // Letter circle badge
-            Container(
+            // Letter circle
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
               width: 34,
               height: 34,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: isSelected
-                    ? const Color(0xFF7E57C2)
-                    : const Color(0xFF9575CD).withValues(alpha: 0.3),
+                    ? Colors.white
+                    : Colors.white.withValues(alpha: 0.22),
               ),
               alignment: Alignment.center,
               child: Text(
                 label,
                 style: TextStyle(
                   fontSize: 13,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w800,
                   color: isSelected
-                      ? Colors.white
-                      : const Color(0xFF4A148C),
+                      ? const Color(0xFF612A7E)
+                      : Colors.white,
                 ),
               ),
             ),
@@ -66,10 +67,13 @@ class OptionTile extends StatelessWidget {
                   fontSize: 15,
                   fontWeight:
                   isSelected ? FontWeight.w600 : FontWeight.w400,
-                  color: const Color(0xFF4A148C),
+                  color: Colors.white,
                 ),
               ),
             ),
+            if (isSelected)
+              const Icon(Icons.check_circle_rounded,
+                  color: Colors.white, size: 20),
           ],
         ),
       ),
