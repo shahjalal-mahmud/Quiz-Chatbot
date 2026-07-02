@@ -1,8 +1,8 @@
 # Amar Proshno
 
-### Flutter Quiz Application with Firebase Authentication
+### Flutter Quiz Application with Firebase Authentication & AI Assistant
 
-*A modern and beautifully designed Flutter quiz application with secure user authentication, built as an assignment project.*
+*A modern and beautifully designed Flutter quiz application with secure user authentication and an AI-powered chat assistant, built as an assignment project.*
 
 ---
 
@@ -44,6 +44,9 @@
       <td align="center">
         <strong>📊 Result Screen</strong>
       </td>
+      <td align="center">
+        <strong>🤖 AI Assistant Screen</strong>
+      </td>
     </tr>
     <tr>
       <td align="center">
@@ -51,6 +54,9 @@
       </td>
       <td align="center">
         <img src="screenshots/result_screen.jpeg" alt="Result Screen" width="250"/>
+      </td>
+      <td align="center">
+        <img src="screenshots/ai_chat_screen.jpeg" alt="AI Assistant Screen" width="250"/>
       </td>
     </tr>
   </table>
@@ -66,9 +72,10 @@
 - 📝 **User Account Management** — Sign up, login, password reset
 - ❓ **Interactive Quiz System** — Multiple choice questions with instant feedback
 - 📊 **Detailed Results** — Score tracking and performance analytics
+- 🤖 **AI Assistant** — In-app chatbot for short quiz-related and general knowledge questions
 - 🎨 **Beautiful UI** — Consistent soft purple gradient design throughout
 
-All questions are stored locally using hardcoded data, with Firebase handling only authentication.
+All questions are stored locally using hardcoded data, with Firebase handling only authentication. The AI Assistant is powered by the Kimchi AI API and is scoped strictly to short quiz and general knowledge answers.
 
 ---
 
@@ -82,6 +89,7 @@ The app follows a consistent **soft purple / lavender gradient** design language
 - **Cards** — Gradient containers with rounded corners and semi-transparent purple fills
 - **Buttons** — Pill-shaped (`borderRadius: 30`) with filled and outlined variants
 - **Text Fields** — Semi-transparent white with icon prefixes and suffix visibility toggles
+- **Chat Bubbles** — Rounded, direction-aware bubbles (white for user, deep purple for AI)
 - **Typography** — Wide letter-spacing uppercase labels, white and purple text
 
 ---
@@ -107,37 +115,41 @@ The app follows a consistent **soft purple / lavender gradient** design language
                                          └─ Back to Login
 
 From Home:
-                                         
+
          Home Screen
               │
-         Start Quiz
-              │
-              ▼
-         Quiz Screen (Single Screen)
-              │
-         Question 1 → Question 2 → ... → Question N
-              │
-              ▼
-         Result Screen
-              │
-         ┌──────────────────┐
-         │ Restart Quiz     │
-         │ Go To Home       │
-         │ Sign Out         │
-         └──────────────────┘
+        ┌─────┴─────┐
+        │           │
+   Start Quiz   AI Assistant
+        │           │
+        ▼           ▼
+   Quiz Screen   AI Chat Screen
+        │           │
+   Question 1 →  Chat with AI
+   Question 2 →  (quiz hints &
+   ...  → N      general knowledge
+        │        only)
+        ▼
+   Result Screen
+        │
+   ┌──────────────────┐
+   │ Restart Quiz     │
+   │ Go To Home       │
+   │ Sign Out         │
+   └──────────────────┘
 ```
 
 ---
 
 ## Features
 
-### Auth Gate Screen ✨ (New)
+### Auth Gate Screen
 - Checks Firebase authentication state on app launch
 - Automatically routes to Home if user is signed in
 - Routes to Login if user is not authenticated
 - Shows loading indicator while checking auth state
 
-### Login Screen ✨ (New)
+### Login Screen
 - Email & password authentication with Firebase
 - Email validation
 - Password visibility toggle
@@ -147,7 +159,7 @@ From Home:
 - Real-time error messages via snackbars
 - Loading state indicator
 
-### Sign Up Screen ✨ (New)
+### Sign Up Screen
 - Create new user account with name, email, password
 - Password confirmation with match validation
 - Email validation
@@ -163,6 +175,7 @@ From Home:
 - Centered brain + gears icon cluster with concentric faint rings
 - Bold `QUIZ` title with wide letter-spacing
 - Pill-shaped `START` button
+- Pill-shaped `AI Assistant` button (below Start), routes to the AI Chat Screen
 - Sign Out button (top-right corner)
 - Displays current user's display name (optional)
 
@@ -182,6 +195,21 @@ From Home:
 - `HOME` (outlined) and `RESTART` (filled) pill buttons
 - Sign Out option
 
+### AI Assistant Screen ✨ (New)
+- Dedicated in-app chatbot scoped strictly to the quiz app's domain
+- Scrollable chat log with rounded message bubbles
+- User messages aligned right (white bubble), AI messages aligned left (deep purple bubble)
+- Multiline text input with a Send button
+- Enter / send action submits the current message
+- Auto-scrolls to the newest message on send and on reply
+- Initial greeting message shown on screen open
+- Loading indicator while waiting for a response
+- Empty-message prevention (won't send blank input)
+- Send button disabled while a request is in flight
+- Timeout and error handling with friendly fallback messages
+- Answers are restricted to short quiz hints and basic general knowledge (max one sentence, ~20 words), and reply in the same language the user wrote in (English or Bangla)
+- Out-of-scope requests (coding, math, essays, politics, medical/legal/financial advice, etc.) receive a fixed refusal message instead of an answer
+
 ---
 
 ## Project Structure
@@ -189,35 +217,40 @@ From Home:
 ```text
 lib/
 │
-├── main.dart                          (Updated with Firebase init & Auth routes)
+├── main.dart                          (Firebase init, Auth routes, AI Chat route)
 │
 ├── controllers/
 │   ├── auth_controller.dart           (Firebase auth logic - sign up, login, logout)
 │   └── quiz_controller.dart           (Quiz logic - questions, scoring)
 │
 ├── models/
-│   └── question.dart                  (Question model with options)
+│   ├── question.dart                  (Question model with options)
+│   └── chat_message.dart              (NEW - Chat message model for AI Assistant)
 │
 ├── data/
 │   └── quiz_data.dart                 (Hardcoded quiz questions)
 │
+├── services/
+│   └── ai_service.dart                (NEW - Kimchi AI API client & system prompt)
+│
 ├── screens/
-│   ├── auth_gate_screen.dart          (NEW - Routes based on auth state)
-│   ├── login_screen.dart              (NEW - Email/password login & Google signin)
-│   ├── signup_screen.dart             (NEW - Account creation)
-│   ├── home_screen.dart               (Updated with logout button)
+│   ├── auth_gate_screen.dart          (Routes based on auth state)
+│   ├── login_screen.dart              (Email/password login & Google signin)
+│   ├── signup_screen.dart             (Account creation)
+│   ├── home_screen.dart               (Updated - AI Assistant button added)
 │   ├── quiz_screen.dart               (Quiz questions & answers)
-│   └── result_screen.dart             (Score & results)
+│   ├── result_screen.dart             (Score & results)
+│   └── ai_chat_screen.dart            (NEW - AI Assistant chat UI)
 │
 ├── widgets/
-│   ├── auth_text_field.dart           (NEW - Styled input for auth screens)
+│   ├── auth_text_field.dart           (Styled input for auth screens)
 │   ├── progress_bar.dart
 │   ├── question_card.dart
 │   ├── option_tile.dart
 │   └── primary_button.dart
 │
 ├── routes/
-│   └── app_routes.dart                (Updated with new auth routes)
+│   └── app_routes.dart                (Updated - AI Chat route added)
 │
 └── firebase_options.dart              (Auto-generated by flutterfire_cli)
 ```
@@ -234,6 +267,7 @@ dependencies:
   firebase_core: ^3.13.0               # Firebase core
   firebase_auth: ^5.5.0                # Firebase authentication
   google_sign_in: ^6.3.0               # Google Sign-In
+  http: ^1.2.0                         # AI Assistant API calls (Kimchi AI)
 ```
 
 ---
@@ -245,45 +279,46 @@ dependencies:
 - Android Studio or VS Code
 - Android Emulator or Physical Device
 - Firebase project with authentication enabled
+- A Kimchi AI API key (for the AI Assistant feature)
 
 ### Installation Steps
 
 1. **Clone or create the project**
-   ```bash
+```bash
    flutter create amar_proshno
    cd amar_proshno
-   ```
+```
 
 2. **Update `pubspec.yaml`** with the dependencies above
-   ```bash
+```bash
    flutter pub get
-   ```
+```
 
 3. **Set up Firebase**
 
    a. Install FlutterFire CLI:
-   ```bash
+```bash
    dart pub global activate flutterfire_cli
-   ```
+```
 
-   b. Configure Firebase for your project (creates `firebase_options.dart` and configures Android/iOS):
-   ```bash
+b. Configure Firebase for your project (creates `firebase_options.dart` and configures Android/iOS):
+```bash
    flutterfire configure
-   ```
-   Select your Firebase project and platforms (Android/iOS).
+```
+Select your Firebase project and platforms (Android/iOS).
 
 4. **Android-Specific Setup for Google Sign-In**
 
    a. Get your debug SHA-1 fingerprint:
-   ```bash
+```bash
    cd android && ./gradlew signingReport
-   ```
+```
 
-   b. Add the SHA-1 fingerprint to your Android app in Firebase Console:
-    - Project Settings → Your App → Add Fingerprint
+b. Add the SHA-1 fingerprint to your Android app in Firebase Console:
+- Project Settings → Your App → Add Fingerprint
 
-   c. Ensure `android/app/build.gradle` has:
-   ```gradle
+c. Ensure `android/app/build.gradle` has:
+```gradle
    android {
        compileSdkVersion 34
        
@@ -291,25 +326,32 @@ dependencies:
            minSdkVersion 23  // Firebase requires 23+
        }
    }
-   ```
+```
 
 5. **iOS-Specific Setup (if building for iOS)**
 
    a. Update `ios/Podfile` — set platform to iOS 15 or higher:
-   ```ruby
+```ruby
    platform :ios, '15.0'
-   ```
+```
 
-   b. Install pods:
-   ```bash
+b. Install pods:
+```bash
    cd ios && pod install && cd ..
-   ```
+```
 
-6. **Run the app**
-   ```bash
+6. **Configure the AI Assistant API key**
+
+   Open `lib/services/ai_service.dart` and replace the placeholder with your real Kimchi AI API key:
+```dart
+   static const String apiKey = "PASTE_API_KEY_HERE";
+```
+
+7. **Run the app**
+```bash
    flutter pub get
    flutter run
-   ```
+```
 
 ### Build APK (Android Release)
 ```bash
@@ -365,6 +407,23 @@ flutter build appbundle --release
 
 ---
 
+## AI Assistant Flow
+
+1. User taps the **AI Assistant** button on the Home screen
+2. App navigates to `AIChatScreen` via the named route `AppRoutes.aiChat`
+3. Screen opens with a greeting message from the assistant
+4. User types a message and taps Send (or presses the Enter/send key)
+5. Message is appended to the chat and the input is cleared
+6. `AiService` sends the full conversation (with a fixed system prompt) to the Kimchi AI endpoint: https://llm.kimchi.dev/openai/v1/chat/completions  using model `kimi-k2.6`
+7. While waiting, a loading indicator is shown and the Send button is disabled
+8. On success, the AI's reply is appended as a left-aligned bubble
+9. On timeout or network/API error, a friendly error message is shown instead of crashing
+10. The chat auto-scrolls to the latest message after every send/reply
+
+**Scope enforcement:** The system prompt restricts the assistant to short quiz hints and basic general knowledge only (one sentence, ~20 words max), replying in the same language as the user (English or Bangla). Requests outside this scope (programming, math, essays, politics, medical/legal/financial advice, roleplay, etc.) receive a fixed refusal message rather than an actual answer.
+
+---
+
 ## Error Handling
 
 The app handles Firebase errors gracefully:
@@ -378,6 +437,14 @@ The app handles Firebase errors gracefully:
 
 All errors are displayed in red snackbars at the bottom of the screen.
 
+The AI Assistant handles its own error cases separately:
+- **Request timeout** → "Request timed out. Please try again."
+- **Non-200 API response** → "AI service error (`<status code>`). Please try again."
+- **Empty/malformed API response** → "No response received. Please try again."
+- **Any other failure** → "Something went wrong. Please try again."
+
+These are shown inline as an assistant chat bubble rather than a snackbar, so the conversation flow isn't interrupted.
+
 ---
 
 ## State Management
@@ -386,6 +453,7 @@ The app uses **GetX** for state management and navigation:
 
 - **AuthController** — Manages Firebase authentication, loading states, password visibility
 - **QuizController** — Manages quiz state, question tracking, scoring
+- **AIChatScreen** (StatefulWidget) — Manages chat message list, loading state, and scroll position locally; delegates all networking to `AiService`
 - Reactive variables (`.obs`) for automatic UI updates
 - Named routes for clean navigation
 
@@ -416,34 +484,38 @@ Question(
 
 ## Assignment Summary
 
-| Feature                       | Status |
-|-------------------------------|--------|
-| Firebase Authentication Setup | ✅      |
-| Email/Password Sign Up        | ✅      |
-| Email/Password Login          | ✅      |
-| Password Reset                | ✅      |
-| Google Sign-In Integration    | ✅      |
-| Auth Gate (Auto-routing)      | ✅      |
-| Sign Out Functionality        | ✅      |
-| Login Screen UI               | ✅      |
-| Sign Up Screen UI             | ✅      |
-| Form Validation               | ✅      |
-| Error Handling & Messages     | ✅      |
-| Loading States                | ✅      |
-| Home Screen                   | ✅      |
-| MCQ Questions                 | ✅      |
-| Hardcoded Local Data          | ✅      |
-| Single Answer Selection       | ✅      |
-| Blob Question Card            | ✅      |
-| Pill Option Tiles             | ✅      |
-| Next Question Navigation      | ✅      |
-| Submit on Final Question      | ✅      |
-| Score Summary Card            | ✅      |
-| Detailed Result Screen        | ✅      |
-| Restart Quiz                  | ✅      |
-| Back to Home                  | ✅      |
-| Consistent Purple Theme       | ✅      |
-| Gradient Background           | ✅      |
+| Feature                         | Status |
+|---------------------------------|--------|
+| Firebase Authentication Setup   | ✅      |
+| Email/Password Sign Up          | ✅      |
+| Email/Password Login            | ✅      |
+| Password Reset                  | ✅      |
+| Google Sign-In Integration      | ✅      |
+| Auth Gate (Auto-routing)        | ✅      |
+| Sign Out Functionality          | ✅      |
+| Login Screen UI                 | ✅      |
+| Sign Up Screen UI               | ✅      |
+| Form Validation                 | ✅      |
+| Error Handling & Messages       | ✅      |
+| Loading States                  | ✅      |
+| Home Screen                     | ✅      |
+| MCQ Questions                   | ✅      |
+| Hardcoded Local Data            | ✅      |
+| Single Answer Selection         | ✅      |
+| Blob Question Card              | ✅      |
+| Pill Option Tiles               | ✅      |
+| Next Question Navigation        | ✅      |
+| Submit on Final Question        | ✅      |
+| Score Summary Card              | ✅      |
+| Detailed Result Screen          | ✅      |
+| Restart Quiz                    | ✅      |
+| Back to Home                    | ✅      |
+| Consistent Purple Theme         | ✅      |
+| Gradient Background             | ✅      |
+| AI Assistant Chat Screen        | ✅      |
+| AI Scope Restriction (Prompt)   | ✅      |
+| AI Loading/Error/Timeout States | ✅      |
+| Auto-scroll Chat                | ✅      |
 
 ---
 
@@ -462,6 +534,8 @@ Question(
 - Responsive mobile UI development
 - Error handling and user feedback
 - Stream-based state management (auth state changes)
+- Integrating a third-party LLM API (Kimchi AI) with a scoped system prompt
+- Building a resilient chat UI (loading, timeout, empty-state, error handling)
 
 ---
 
@@ -483,6 +557,12 @@ Question(
 ### Email already registered but can't log in
 - **Solution**: Use "Forgot password?" to reset, or check that you're using the exact email address
 
+### AI Assistant always returns an error
+- **Solution**: Make sure you replaced `apiKey` in `lib/services/ai_service.dart` with a valid Kimchi AI API key, and that the device has an active internet connection
+
+### AI Assistant times out
+- **Solution**: Check your network connection; the request will automatically fail after 20 seconds with a "Request timed out" message
+
 ---
 
 ## Future Enhancements
@@ -495,6 +575,8 @@ Question(
 - 🌙 Dark mode theme
 - 🌍 Multi-language support (Bengali, English, etc.)
 - 📱 Offline support with data caching
+- 💬 Persist AI chat history across sessions
+- 🔒 Move the AI API key to a secure backend/proxy instead of client-side storage
 
 ---
 
@@ -504,6 +586,6 @@ Question(
 
 Flutter Developer • Android Developer • Founder, Appriyo
 
-**Updated with Firebase Authentication & Multi-Auth Support**
+**Updated with Firebase Authentication, Multi-Auth Support & AI Assistant**
 
 </div>
