@@ -20,5 +20,8 @@ dependencies:
   # Google Sign-In (pinned to the 6.x API which is simpler/stable for this app)
   google_sign_in: ^6.3.0
 
+  # AI Chatbot (Kimchi AI API)
+  http: ^1.2.0
+
 flutter:
   uses-material-design: true
