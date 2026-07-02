@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'controllers/auth_controller.dart';
 import 'firebase_options.dart';
 import 'routes/app_routes.dart';
+import 'screens/ai_chat_screen.dart';
 import 'screens/auth_gate_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/login_screen.dart';
@@ -59,6 +60,7 @@ class AmarProshnoApp extends StatelessWidget {
         GetPage(name: AppRoutes.home, page: () => const HomeScreen()),
         GetPage(name: AppRoutes.quiz, page: () => const QuizScreen()),
         GetPage(name: AppRoutes.result, page: () => const ResultScreen()),
+        GetPage(name: AppRoutes.aiChat, page: () => const AIChatScreen()),
       ],
     );
   }
